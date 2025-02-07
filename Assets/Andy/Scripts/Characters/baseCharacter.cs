@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 using UniRx;
+using UnityEngine.Serialization;
 
 namespace Andy.Scripts.Characters
 {
@@ -12,9 +13,9 @@ namespace Andy.Scripts.Characters
         private float _hp;
         private float _speed;
 
-        [Inject] public Transform _goal;
-
         NavMeshAgent _nav;
+        [Inject] public Transform castle;
+
 
         private void Awake()
         {
@@ -23,7 +24,20 @@ namespace Andy.Scripts.Characters
 
         private void Start()
         {
-            _nav.SetDestination(_goal.position);
+            _nav.SetDestination(castle.position);
+        }
+
+        // private void OnTriggerStay(Collider other)
+        // {
+        //     Debug.Log(@$"{other.gameObject.name}");
+        // }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            Debug.Log(@$"{other.transform.gameObject.name}");
+            // if (other.gameObject)
+            // {
+            // }
         }
     }
 }
