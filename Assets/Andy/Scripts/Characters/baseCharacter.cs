@@ -12,6 +12,10 @@ namespace Andy.Scripts.Characters
         private float _atk;
         private float _hp;
         private float _speed;
+        private float _coolDown; // 攻速
+        public bool bAllied; // 是否為友軍
+        private ReactiveProperty<EState> _state; // 反應式狀態機
+
 
         NavMeshAgent _nav;
         [Inject] public Transform castle;
@@ -20,9 +24,12 @@ namespace Andy.Scripts.Characters
         private void Awake()
         {
             _nav = GetComponent<NavMeshAgent>();
+            _state.Value = EState.Idle;
         }
 
         private void Start()
+
+
         {
             _nav.SetDestination(castle.position);
         }
@@ -33,11 +40,19 @@ namespace Andy.Scripts.Characters
         // }
 
         private void OnTriggerEnter(Collider other)
+
+
         {
             Debug.Log(@$"{other.transform.gameObject.name}");
             // if (other.gameObject)
             // {
             // }
         }
+    }
+
+
+    enum EState
+    {
+        Idle,
     }
 }
