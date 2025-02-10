@@ -7,7 +7,7 @@ using UniRx;
 public class AnimatorPlay : MonoBehaviour
 
 {
-    private Animator animator;
+    private Animator _animator;
     // AnimatorStateInfo stateInfo;
 
 
@@ -29,10 +29,10 @@ public class AnimatorPlay : MonoBehaviour
 
     void Start()
     {
-        animator = GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
         
         Observable.EveryUpdate()
-            .Select(_ => animator.GetCurrentAnimatorStateInfo(0))
+            .Select(_ => _animator.GetCurrentAnimatorStateInfo(0))
             .Where(_ => _.normalizedTime >= 1.0f)   // 最好再加一個bool
             .Subscribe(_ => { Debug.Log("動畫播放完畢！"); });
         // Observable.EveryUpdate()
@@ -47,15 +47,15 @@ public class AnimatorPlay : MonoBehaviour
         // 根據輸入直接播放哈希值對應的動畫
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            animator.Play(IdleStateHash, 0, 0);
+            _animator.Play(IdleStateHash, 0, 0);
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            animator.Play(RunStateHash, 0, 0);
+            _animator.Play(RunStateHash, 0, 0);
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            animator.Play(JumpStateHash, 0, 0);
+            _animator.Play(JumpStateHash, 0, 0);
         }
     }
 
@@ -72,6 +72,6 @@ public class AnimatorPlay : MonoBehaviour
         // 在這裡執行動畫結束後的任務
         Debug.Log($"Animation {animationName} completed!");
 
-        animator.Play(Idle);
+        _animator.Play(Idle);
     }
 }
