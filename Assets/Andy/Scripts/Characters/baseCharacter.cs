@@ -86,9 +86,56 @@ namespace Andy.Scripts.Characters
         private void OnTriggerEnter(Collider other)
         {
             Debug.Log(@$"{other.transform.gameObject.name}");
-            // if (other.gameObject)
-            // {
-            // }
+            // todo: 判斷是否為可攻擊對象，還沒寫完，未來要用物件掛的腳本判斷
+            if (other)
+            {
+                // 不是可攻擊對象，return
+                // return;
+            }
+
+            switch (_currentState)
+            {
+                case EState.Idle:
+                    _currentState = EState.Defend;
+                    break;
+                case EState.Move:
+                    Debug.Log("Moving , no state changing");
+                    break;
+                case EState.Chase:
+                    // todo: 除了追逐的目標以外不轉入攻擊
+                    break;
+                case EState.Attack:
+                    // todo: 轉移目標? 排入駐列?
+
+                    break;
+                case EState.Defend:
+
+                    break;
+                default:
+                    Debug.Log(@$"{gameObject.name}: unexpect trigger");
+
+                    break;
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            switch (_currentState)
+            {
+                case EState.Idle:
+                    break;
+                case EState.Move:
+                    break;
+                case EState.Chase:
+                    break;
+                case EState.Attack:
+                    break;
+                case EState.Defend:
+                    break;
+                default:
+                    Debug.Log(@$"{gameObject.name}: unexpect trigger");
+                    break;
+            }
         }
 
         void StateHandler(EState currentState)
