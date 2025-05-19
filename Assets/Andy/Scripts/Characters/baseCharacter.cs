@@ -19,32 +19,30 @@ namespace Andy.Scripts.Characters
 
         public bool bAllied; // 是否為友軍
 
-        protected ReactiveProperty<EState> State; // 反應式狀態接收器
+        protected ReactiveProperty<EState> State = new(EState.Idle); // 反應式狀態接收器
         private EState _currentState; // 狀態機
 
         protected Animator Animator;
-
-
-        // 用字典儲存動畫名
-        protected readonly Dictionary<int, string> AniNameDictionary = new();
-
+        
         // 將動畫名轉成哈希
-        private readonly int _idleStateHash = Animator.StringToHash("Idle");
-        private readonly int _moveStateHash = Animator.StringToHash("Move");
-        private readonly int _attackStateHash = Animator.StringToHash("Attack");
-        private readonly int _dieStateHash = Animator.StringToHash("Die");
+        private int _idleStateHash = Animator.StringToHash("Idle");
+        private int _moveStateHash = Animator.StringToHash("Move");
+        private int _attackStateHash = Animator.StringToHash("Attack");
+        private int _dieStateHash = Animator.StringToHash("Die");
 
         NavMeshAgent _nav;
         [Inject] public Transform castle;
 
-        public baseCharacter(ReactiveProperty<EState> state)
-        {
-            State = state;
-        }
+        // bug: monoBehavier不能用建構的，要錯幾遍
+        // public baseCharacter(ReactiveProperty<EState> state)
+        // {
+        //     State = state;
+        // }
 
         [Inject]
         void Init()
         {
+            Debug.Log(@"Init();");
         }
 
         private void Awake()
@@ -53,27 +51,22 @@ namespace Andy.Scripts.Characters
             _nav.speed = speed;
             _nav.isStopped = true;
             Animator = GetComponent<Animator>();
-            InitAnim();
 
             State.Subscribe(state =>
             {
                 _nav.isStopped = true;
                 _currentState = state;
+                Debug.Log(@$"state: {state}");
+
                 StateHandler(_currentState);
             });
             State.Value = EState.Idle;
         }
 
-        private void InitAnim()
-        {
-            AniNameDictionary.Add(_idleStateHash, "Idle");
-            AniNameDictionary.Add(_moveStateHash, "Move");
-            AniNameDictionary.Add(_attackStateHash, "Attack");
-            AniNameDictionary.Add(_dieStateHash, "Die");
-        }
-
         private void Start()
         {
+            // InitAnim();
+
             _nav.SetDestination(castle.position);
         }
 
@@ -81,7 +74,26 @@ namespace Andy.Scripts.Characters
         {
             _canAttackTime += Time.deltaTime * 1;
             _bCanAttack = _canAttackTime >= coolDown;
+
+            // todo: 用完了記得要砍掉
+            KeyTest();
         }
+
+        private void KeyTest()
+        {
+            if (Input.GetMouseButtonUp(1))
+            {
+                print("mouse up");
+                State.Value = EState.Attack;
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                print("mouse up");
+                State.Value = EState.Idle;
+            }
+        }
+
 
         private void OnTriggerEnter(Collider other)
         {
@@ -165,6 +177,8 @@ namespace Andy.Scripts.Characters
                     break;
                 case EState.Attack:
                     // 播放攻擊動畫，受公速(coolDown)影響
+                    Debug.Log(@$"_bCanAttack: {_bCanAttack}");
+
                     if (_bCanAttack)
                     {
                         Animator.Play(_attackStateHash, 0, 0);

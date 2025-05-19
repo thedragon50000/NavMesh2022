@@ -35,6 +35,7 @@ public class AnimatorPlay : MonoBehaviour
             .Select(_ => _animator.GetCurrentAnimatorStateInfo(0))
             .Where(_ => _.normalizedTime >= 1.0f)   // 最好再加一個bool
             .Subscribe(_ => { Debug.Log("動畫播放完畢！"); });
+        
         // Observable.EveryUpdate()
         //     .Where(_ => Input.GetKeyDown(KeyCode.LeftArrow))
         //     .Take(1) // 只執行一次，防止多次觸發
