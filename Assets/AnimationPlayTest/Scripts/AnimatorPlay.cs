@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using UniRx.Triggers;
+using DG.Tweening;
+using System.Security.Cryptography.X509Certificates;
+using UnityEditor.Animations;
+using System.Linq;
 
 public class AnimatorPlay : MonoBehaviour
 
@@ -11,16 +16,35 @@ public class AnimatorPlay : MonoBehaviour
     // AnimatorStateInfo stateInfo;
 
 
-    // 將動畫狀態名稱的哈希值存儲為靜態常量
+    // 將動畫state的哈希值存儲為靜態常量
     private static readonly int IdleStateHash = Animator.StringToHash("A");
     private static readonly int RunStateHash = Animator.StringToHash("B");
     private static readonly int JumpStateHash = Animator.StringToHash("C");
     private static readonly int Idle = Animator.StringToHash("New State");
 
     private readonly Dictionary<int, string> _stateAnim = new();
-
+    private readonly Dictionary<int, AnimData> _animLibrary = new();
     private void Awake()
     {
+        _animator = GetComponent<Animator>();
+        var a = _animator.runtimeAnimatorController as AnimatorController;
+        var temp = a.layers[0].stateMachine.states;
+        AnimatorState[] states = temp.Select(s => s.state).ToArray();
+
+        foreach (var item in states)
+        {
+            Debug.Log($"{item.name}");
+            Debug.Log($"{item.motion}");
+            Debug.Log($"{item.nameHash}");
+        }
+
+
+        var clips = _animator.runtimeAnimatorController.animationClips;
+
+        foreach (var clip in clips)
+        {
+            var data = new AnimData(clip.name, clip.length);
+        }
         _stateAnim.Add(IdleStateHash, "A");
         _stateAnim.Add(RunStateHash, "B");
         _stateAnim.Add(JumpStateHash, "C");
@@ -29,50 +53,75 @@ public class AnimatorPlay : MonoBehaviour
 
     void Start()
     {
-        _animator = GetComponent<Animator>();
-        
+
         Observable.EveryUpdate()
             .Select(_ => _animator.GetCurrentAnimatorStateInfo(0))
-            .Where(_ => _.normalizedTime >= 1.0f)   // 最好再加一個bool
-            .Subscribe(_ => { Debug.Log("動畫播放完畢！"); });
-        
-        // Observable.EveryUpdate()
-        //     .Where(_ => Input.GetKeyDown(KeyCode.LeftArrow))
-        //     .Take(1) // 只執行一次，防止多次觸發
-        //     .Subscribe(_ => { animator.Play(JumpStateHash, 0, 0); });
+            // 只有當播放進度跨越 1.0，且目前不是處於過渡狀態時
+            .Select(info => info.normalizedTime >= 1.0f && !_animator.IsInTransition(0))
+
+            // 狀態改變（從 false 變 true）才發送信號
+            .DistinctUntilChanged()
+            .Where(isFinished => isFinished)
+
+            .Subscribe(_ =>
+            {
+                Debug.Log("動畫播放完畢！");
+                // 這裡可以接續播 Idle
+                _animator.CrossFade(Idle, 0.2f);
+            });
+
+        this.UpdateAsObservable()
+            .Subscribe(_ =>
+            {
+                if (Input.GetKeyDown(KeyCode.DownArrow)) PlayAnimation(IdleStateHash);
+                if (Input.GetKeyDown(KeyCode.RightArrow)) PlayAnimation(RunStateHash);
+                if (Input.GetKeyDown(KeyCode.LeftArrow)) PlayAnimation(JumpStateHash);
+            });
     }
 
-    void Update()
+    void PlayAnimation(int hash)
     {
-        
-        // 根據輸入直接播放哈希值對應的動畫
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            _animator.Play(IdleStateHash, 0, 0);
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            _animator.Play(RunStateHash, 0, 0);
-        }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            _animator.Play(JumpStateHash, 0, 0);
-        }
+        _animator.CrossFade(hash, 0.1f);
+        OnStateExit(hash);
     }
 
-    // 當動畫狀態退出時調用
-    public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    // callBack 當動畫狀態退出時調用
+    private void OnStateExit(int hash)
     {
-        _stateAnim.TryGetValue(stateInfo.shortNameHash, out var state);
-        OnAnimationComplete(state);
+        var info = _animator.GetCurrentAnimatorStateInfo(0);
+        _stateAnim.TryGetValue(hash, out var state);
+        var motion = state.Length; // 拿到裡面裝的 Clip
+        var countdown = info.length;
+        DOVirtual.DelayedCall(countdown, () => OnAnimationComplete(state));
     }
+
 
     // 自定義回調處理邏輯
     private void OnAnimationComplete(string animationName)
     {
         // 在這裡執行動畫結束後的任務
         Debug.Log($"Animation {animationName} completed!");
+        switch (animationName)
+        {
+            default:
+                break;
+        }
 
-        _animator.Play(Idle);
+        // _animator.CrossFade(Idle, 0.2f);
+    }
+
+    public class AnimData
+    {
+        public string Name;
+        public int Hash;
+        public float Length;
+
+        public AnimData(string name, float length)
+        {
+            print($"name: {name}");
+            Name = name;
+            Hash = Animator.StringToHash(name);
+            Length = length;
+        }
     }
 }

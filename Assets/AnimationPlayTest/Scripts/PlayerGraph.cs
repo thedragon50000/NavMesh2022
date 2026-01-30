@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Resources;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Animations;
 using UnityEngine.Audio;
 using UnityEngine.Playables;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Timeline;
 // using DG
 
@@ -14,30 +19,56 @@ public class ModelAnimationController : MonoBehaviour
     public AnimationClip clip0;
     public AnimationClip clip1;
 
-    public AudioClip walkSfx;
-    public AudioSource audio;
+    public AudioSource audioSource;
 
     private PlayableGraph _playableGraph;
+
+    [SerializeField]
+    List<AudioClip> AudioClips;
+
+    [SerializeField]
+    AudioClip oneClip;
+
 
     void Start()
     {
         // 創建 PlayableGraph
         _playableGraph = PlayableGraph.Create("ModelAnimationGraph");
 
-        // OneMotion();
+        OneMotion();
+        AudioPlay();
         TwoMotionMixer();
-        // AudioPlay();
     }
 
-    private void AudioPlay()
+    private async Task AudioPlay()
     {
-        // Warning:沒有資源，不能播
-        // 正確的寫法是這樣：
-        var audioClipPlayable = AudioClipPlayable.Create(_playableGraph, walkSfx, true); // true 代表循環播放
+        var playableGraphAudio = PlayableGraph.Create("Graph");
+
+        /*要讀標籤，讀群組沒用*/
+        var b = Addressables.LoadAssetsAsync<AudioClip>("Music", (x) =>
+        {
+            Debug.Log($"讀取完畢{x.name}");
+        });
+        // 讀取群組 會讀出一堆null
+        // var a = Addressables.LoadAssetsAsync<AudioClip>("New", (x) =>
+        // {
+        //     Debug.Log($"讀取完畢{x.name}");
+        // });
+        var result = await b.Task;
+
+        AudioClips = new List<AudioClip>(result);
+
+        // 讀取單首
+        oneClip = await Addressables.LoadAssetAsync<AudioClip>("BGM0").Task;
+
+
+        var audioClipPlayable = AudioClipPlayable.Create(playableGraphAudio, oneClip, false); // true 代表循環播放
 
         // 就像動畫一樣，它也需要一個 Output 接出去
-        var output2 = AudioPlayableOutput.Create(_playableGraph, "AudioOut", audio);
+        var output2 = AudioPlayableOutput.Create(playableGraphAudio, "AudioOut", audioSource);
         output2.SetSourcePlayable(audioClipPlayable);
+        playableGraphAudio.Play();
+
     }
 
     private void OneMotion()
