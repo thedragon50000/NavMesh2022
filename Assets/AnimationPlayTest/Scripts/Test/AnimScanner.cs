@@ -13,13 +13,13 @@ public class AnimScanner
         var controller = animator.runtimeAnimatorController as AnimatorController;
         if (controller == null) return;
 
-        var dataMap = AssetDatabase.LoadAssetAtPath<AnimDataMap>("Assets/Andy/Scripts/AnimDataMap.asset");
+        var dataMap = AssetDatabase.LoadAssetAtPath<AnimDataMap>("Assets/AnimationPlayTest/Scripts/AnimDataMap.asset");
 
         // 如果沒檔案就建一個
         if (dataMap == null)
         {
             dataMap = ScriptableObject.CreateInstance<AnimDataMap>();
-            AssetDatabase.CreateAsset(dataMap, "Assets/Andy/Scripts/AnimDataMap.asset");
+            AssetDatabase.CreateAsset(dataMap, "Assets/AnimationPlayTest/Scripts/AnimDataMap.asset");
         }
         dataMap.states.Clear();
 
@@ -42,7 +42,8 @@ public class AnimScanner
                 {
                     stateName = s.state.name,
                     hash = Animator.StringToHash(s.state.name),
-                    length = motion.length
+                    length = motion.length,
+                    // clip = motion
                 });
             }
         }

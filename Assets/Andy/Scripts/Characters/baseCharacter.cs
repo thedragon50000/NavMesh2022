@@ -23,7 +23,7 @@ namespace Andy.Scripts.Characters
         private EState _currentState; // 狀態機
 
         protected Animator Animator;
-        
+
         // 將動畫名轉成哈希
         private int _idleStateHash = Animator.StringToHash("Idle");
         private int _moveStateHash = Animator.StringToHash("Move");
@@ -90,7 +90,7 @@ namespace Andy.Scripts.Characters
             if (Input.GetMouseButtonUp(0))
             {
                 print("mouse up");
-                State.Value = EState.Idle;
+                State.Value = EState.Chase;
             }
         }
 
@@ -170,7 +170,8 @@ namespace Andy.Scripts.Characters
                 case EState.Chase:
                     // todo: 開啟NavMeshAgent並設置目標
                     _nav.isStopped = false;
-                    // _nav.SetDestination();
+                    Debug.Log("追");
+                    _nav.SetDestination(castle.position);
 
                     // todo: triggerEnter時才會進行攻擊
                     // todo: triggerExit時開啟NavMeshAgent繼續追擊

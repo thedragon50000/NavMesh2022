@@ -16,16 +16,20 @@ MonoBehaviour:
   - stateName: New State
     hash: -499022955
     length: 0.033333335
+    clip: {fileID: 1827226128182048838, guid: e21bde0edb14d7c479dc892de0b82673, type: 3}
     customEvents: []
   - stateName: A
     hash: -740712821
     length: 1.1333334
+    clip: {fileID: -4304836385353429653, guid: 4f2d00b64b239804fb07d21d9e10fa32, type: 3}
     customEvents: []
   - stateName: B
     hash: 1255198513
     length: 0.8000001
+    clip: {fileID: 4189676145174806922, guid: 90f6d4658381d08459f28236340b4346, type: 3}
     customEvents: []
   - stateName: C
     hash: 1037565863
     length: 3.5666668
+    clip: {fileID: 7400000, guid: c895dff4365ad4506ab680fdc4a0afb8, type: 3}
     customEvents: []
