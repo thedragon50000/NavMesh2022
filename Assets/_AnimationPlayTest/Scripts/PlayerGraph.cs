@@ -12,7 +12,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Timeline;
 // using DG
 
-public class ModelAnimationController : MonoBehaviour
+public class PlayerGraphTest : MonoBehaviour
 {
     public Animator animator;  // 模型上的 Animator 組件
     // 你想播放的動畫片段
