@@ -52,7 +52,7 @@ public class SpineToSOConverter : EditorWindow
         // 標記 SO 已修改，這樣 Unity 才會存檔
         EditorUtility.SetDirty(targetSO);
         AssetDatabase.SaveAssets();
-        
+
         Debug.Log($"<color=green>成功！已從 {selected.name} 匯入 {skeletonData.Animations.Count} 個動畫到 SO！</color>");
     }
 }
