@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class AnimScanner
 {
-    [MenuItem("Tools/同步動畫資料庫")]
+    [MenuItem("我的工具/同步動畫資料庫")]
     public static void Sync()
     {
         var animator = Selection.activeGameObject?.GetComponent<Animator>();

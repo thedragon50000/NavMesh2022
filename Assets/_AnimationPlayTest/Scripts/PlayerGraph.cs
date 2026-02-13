@@ -1,20 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.Resources;
 using System.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Animations;
 using UnityEngine.Audio;
 using UnityEngine.Playables;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.Timeline;
-// using DG
 
-public class PlayerGraphTest : MonoBehaviour
+public class PlayerGraph : MonoBehaviour
 {
     public Animator animator;  // 模型上的 Animator 組件
+
     // 你想播放的動畫片段
     public AnimationClip clip0;
     public AnimationClip clip1;
@@ -28,7 +23,7 @@ public class PlayerGraphTest : MonoBehaviour
 
     [SerializeField]
     AudioClip oneClip;
-
+    private AnimationClipPlayable _clipPlayable;
 
     void Start()
     {
@@ -119,7 +114,26 @@ public class PlayerGraphTest : MonoBehaviour
         _playableGraph.Play();
     }
 
-    void OnDestroy()
+    public void ManualUpdate(float time)
+    {
+        if (!_playableGraph.IsValid())
+        {
+            _playableGraph = PlayableGraph.Create("EditorGraph");
+            var output = AnimationPlayableOutput.Create(_playableGraph, "Anim", animator);
+
+            // 這裡要把生成的 Playable 存起來
+            _clipPlayable = AnimationClipPlayable.Create(_playableGraph, clip1);
+            output.SetSourcePlayable(_clipPlayable);
+        }
+
+        // ✅ 正確做法：對「節點」設定時間，而不是對 Graph
+        _clipPlayable.SetTime(time);
+
+        // ✅ 然後叫 Graph 根據新的時間計算（Evaluate）
+        _playableGraph.Evaluate();
+    }
+
+    public void OnDestroy()
     {
         // 銷毀 PlayableGraph 以釋放資源
         _playableGraph.Destroy();

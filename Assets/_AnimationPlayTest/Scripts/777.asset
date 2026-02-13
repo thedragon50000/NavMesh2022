@@ -10,26 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1982f5e656816bb48af5140f1a937605, type: 3}
-  m_Name: AnimDataMap
+  m_Name: 777
   m_EditorClassIdentifier: 
   states:
   - stateName: New State
     hash: -499022955
     length: 0.033333335
-    clip: {fileID: 1827226128182048838, guid: e21bde0edb14d7c479dc892de0b82673, type: 3}
-    customEvents: []
   - stateName: A
-    hash: -740712821
-    length: 1.1333334
-    clip: {fileID: -4304836385353429653, guid: 4f2d00b64b239804fb07d21d9e10fa32, type: 3}
-    customEvents: []
+    hash: -740686458
+    length: 4.36
   - stateName: B
-    hash: 1255198513
+    hash: 1255268135
     length: 0.8000001
-    clip: {fileID: 4189676145174806922, guid: 90f6d4658381d08459f28236340b4346, type: 3}
-    customEvents: []
   - stateName: C
-    hash: 1037565863
+    hash: 1037635815
     length: 3.5666668
-    clip: {fileID: 7400000, guid: c895dff4365ad4506ab680fdc4a0afb8, type: 3}
-    customEvents: []

@@ -4,8 +4,8 @@ using System.IO;
 
 public class BatchRenameTool
 {
-    // 在選單列建立一個按鈕，路徑為 MyTools > Rename Selected Assets
-    [MenuItem("MyTools/Rename Selected Assets")]
+    // 在選單列建立一個按鈕，路徑為 我的工具 > Rename Selected Assets
+    [MenuItem("我的工具/Rename Selected Assets")]
     static void RenameAssets()
     {
         // 1. 獲取目前在 Project 視窗選中的所有資源的 GUID
@@ -50,7 +50,7 @@ public class BatchRenameTool
         AssetDatabase.Refresh();
     }
 
-    [MenuItem("MyTools/Rename Selected Assets 2")]
+    [MenuItem("我的工具/Rename Selected Assets 2")]
 
     static void Test()
     {

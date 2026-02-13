@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public abstract class baseCharacterAnimation : MonoBehaviour
 {
@@ -82,10 +84,13 @@ public abstract class baseCharacterAnimation : MonoBehaviour
         // 例如：if (name == "A") Play("B");
     }
 
-    
-    protected void PlayAnimation(string state)
-    {
 
+    public void PlayAnimation(string state)
+    {
+        if (_animator == null)
+        {
+            _animator = GetComponent<Animator>();
+        }
         var info = _animator.GetCurrentAnimatorStateInfo(0);
         // 相同動作
         if (info.shortNameHash == Animator.StringToHash(state))

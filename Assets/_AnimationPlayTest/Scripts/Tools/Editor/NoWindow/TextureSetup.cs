@@ -26,7 +26,46 @@ SerializedProperty：就是這個盒子裡的具體某個數據（例如圖片�
 */
 public class SerializedObjectTool
 {
-    [MenuItem("MyTools/Advanced Texture Setup")]
+    [MenuItem("我的工具/Advanced Texture Setup can Undo")]
+    static void SetupTexturesCanUndo()
+    {
+        Object[] textures = Selection.GetFiltered<Texture2D>(SelectionMode.DeepAssets);
+
+        // 💡 步驟 A: 開啟一個 Undo 群組，讓這次所有修改變成「一次 Ctrl+Z」
+        Undo.IncrementCurrentGroup();
+        Undo.SetCurrentGroupName("Batch Change Mesh Type");
+        int undoGroup = Undo.GetCurrentGroup();
+
+        foreach (var tex in textures)
+        {
+            string path = AssetDatabase.GetAssetPath(tex);
+            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+            if (importer != null)
+            {
+                // 💡 步驟 B: 紀錄該物件，並指定屬於剛才那個群組
+                Undo.RecordObject(importer, "Change Sprite Mesh Type");
+
+                SerializedObject so = new SerializedObject(importer);
+                SerializedProperty meshTypeProp = so.FindProperty("m_SpriteMeshType");
+
+                if (meshTypeProp != null)
+                {
+                    meshTypeProp.intValue = 0;
+                    so.ApplyModifiedProperties();
+                }
+
+                // 💡 提示：SaveAndReimport 是硬碟操作，無法被 Undo 撤回檔案層級。
+                // 但因為 .meta 被 Undo 改回去了，Unity 會偵測到變化並自動再次觸發 Reimport。
+                importer.SaveAndReimport();
+            }
+        }
+
+        // 💡 步驟 C: 結束並合併群組
+        Undo.CollapseUndoOperations(undoGroup);
+    }
+    
+    [MenuItem("我的工具/Advanced Texture Setup")]
     static void SetupTextures()
     {
         // 1. 抓取資源 (使用DeepAssets抓取資料夾內部檔案)
@@ -78,10 +117,20 @@ public class SerializedObjectTool
             Debug.Log("序列化修改完成！");
         }
     }
-    [MenuItem("MyTools/Check Texture Properties")]
+
+    [MenuItem("我的工具/Check Asset Properties")]
     static void Check()
     {
         var target = Selection.assetGUIDs;
+        if (target.Length == 0)
+        {
+            return;
+        }
+        if (target.Length > 1)
+        {
+            Debug.LogWarning("只能選一個資產查詢");
+            return;
+        }
         string path = AssetDatabase.GUIDToAssetPath(target[0]);
 
         AssetImporter importer = AssetImporter.GetAtPath(path);
@@ -91,8 +140,11 @@ public class SerializedObjectTool
         // 「只要還有下一個房間，就繼續走」
         while (it.Next(true))
         {
-            // 現在 it 指向的就是當前的那個欄位
-            Debug.Log("發現欄位名稱：" + it.name);
+            if (it.name.StartsWith("m_"))
+            {
+                // 現在 it 指向的就是當前的那個欄位
+                Debug.Log("發現欄位名稱：" + it.name);
+            }
         }
     }
 }

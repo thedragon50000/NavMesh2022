@@ -1,13 +1,21 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx.Triggers;
 using UniRx;
-using TMPro;
-using DG.Tweening;
-using System.Linq;
+
+[ExecuteInEditMode]
 public class animPlayer : baseCharacterAnimation
 {
+    [Header("測試快捷鍵")]
+    [Tooltip("開啟後可以使用方向鍵測試動畫")]
+    [SerializeField] private bool enableDebugKeys = true;
+
+    [Header("目前的狀態")]
+    // [ReadOnly] // todo: 這是自定義標籤，等一下我們來寫它
+    [SerializeField] private string currentPlayingAnim = "None";
+
+    [Header("預覽設置")]
+    [Range(0, 1)] 
+    public float previewNormalizedTime;
 
     void Start()
     {
